@@ -1,4 +1,4 @@
-import WordleModel
+from wordle import WordleModel
 import requests
 
 '''
