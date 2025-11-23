@@ -85,7 +85,7 @@ def wordle_guess():
         'guesses': [
             {
                 'word': g.getGuess() if g else '',
-                'evaluation': g.getLetterEvaluation() if g else []
+                'evaluation': [g.getLetterEval(i) for i in range(5)] if g else []
             } for g in guesses
         ]
     }

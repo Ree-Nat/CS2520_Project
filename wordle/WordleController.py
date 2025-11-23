@@ -59,7 +59,7 @@ class WordleController:
         self.__buffer = ""
 
         #local word bank for verification (not generation)
-        with open("valid.txt") as f:
+        with open("wordle/valid.txt") as f:
             self.__valid_words = {i.strip().lower() for i in f}
 
     #when guess is made, pass to model
