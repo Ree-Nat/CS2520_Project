@@ -40,6 +40,10 @@ class SpellingBeeController:
             self.__wordleModel.addPoint()
             return True
 
+    #gets the list of words that user input
+    def getUserAnswers(self):
+        return self.getUserAnswers()
+
     def setBuffer(self, str):
         self.__buffer = str
 

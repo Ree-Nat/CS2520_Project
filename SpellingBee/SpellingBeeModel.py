@@ -6,10 +6,9 @@ class SpellingBeeModel:
     def __init__(self):
         self.__points = 0 
         self.__validAnswers = []
-        self.__usableLetters = []
+        self.__usableLetters = self.generateUsableLetters()
         WordListGenerator = reader.WordDictionary("WordRepository\words_dictionary.json")
         self.__wordList = WordListGenerator.getWordsOfLength(7)
-        self.generateUsableLetters()
 
     #checks to see if userInput contains the 7 selected words
 
