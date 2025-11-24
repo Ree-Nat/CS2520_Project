@@ -29,8 +29,6 @@ def index():
 @app.route('/wordle')
 def wordle():
     """Initialize or resume Wordle game session."""
-    if 'wordle_controller' not in session:
-        session['wordle_controller'] = None
     return render_template('wordle.html')
 
 
@@ -38,10 +36,12 @@ def wordle():
 def wordle_start():
     """Start a new Wordle game."""
     controller = WordleController()
-    # Store game state in session (simplified for now)
+    # Store game state in session
+    session['wordle_secret'] = controller.getSecretWord()
+    session['wordle_guesses'] = []
     session['wordle_active'] = True
     session.modified = True
-    return jsonify({'status': 'started'})
+    return jsonify({'status': 'started', 'secret': controller.getSecretWord()})
 
 
 @app.route('/wordle/guess', methods=['POST'])
@@ -57,41 +57,51 @@ def wordle_guess():
     if not guess or len(guess) != 5:
         return jsonify({'error': 'Invalid guess length'}), 400
 
-    # Initialize controller if needed
-    if 'wordle_controller' not in session:
-        session['wordle_controller'] = None
+    # Check if game is active
+    if 'wordle_secret' not in session or 'wordle_guesses' not in session:
+        return jsonify({'error': 'No active game. Start a new game first.'}), 400
 
-    # TODO: Implement proper session persistence for WordleController
-    # For now, this demonstrates the API structure
+    # Validate the guess using controller
     controller = WordleController()
-    controller.onKeyPress(guess[0])
-    controller.onKeyPress(guess[1])
-    controller.onKeyPress(guess[2])
-    controller.onKeyPress(guess[3])
-    controller.onKeyPress(guess[4])
-    controller.onKeyPress('ENTER')
+    for char in guess:
+        controller.onKeyPress(char)
+    
+    # Check if word is valid before processing
+    if not controller.isValid(guess):
+        return jsonify({'error': 'Not a valid word'}), 400
 
-    # Get game state
-    guesses = controller.getGuesses()
-    guess_count = controller.getGuessCount()
-    is_won = controller.isWon()
-    is_lost = controller.isLost()
+    # Get secret word from session
+    secret_word = session['wordle_secret']
+    guesses_made = session['wordle_guesses']
+
+    # Process the guess using Guess class
+    from wordle.Guess import Guess
+    guess_obj = Guess(guess, secret_word)
+    
+    # Store guess evaluation
+    guess_data = {
+        'word': guess,
+        'evaluation': [guess_obj.getLetterEval(i) for i in range(5)]
+    }
+    guesses_made.append(guess_data)
+    session['wordle_guesses'] = guesses_made
+    session.modified = True
+
+    # Check win/loss conditions
+    guess_count = len(guesses_made)
+    is_won = guess == secret_word
+    is_lost = guess_count >= 6 and not is_won
 
     # Format response
     response = {
         'guess_count': guess_count,
         'is_won': is_won,
         'is_lost': is_lost,
-        'guesses': [
-            {
-                'word': g.getGuess() if g else '',
-                'evaluation': [g.getLetterEval(i) for i in range(5)] if g else []
-            } for g in guesses
-        ]
+        'guesses': guesses_made
     }
 
     if is_won or is_lost:
-        response['secret_word'] = controller.getSecretWord()
+        response['secret_word'] = secret_word
 
     return jsonify(response)
 
@@ -99,7 +109,8 @@ def wordle_guess():
 @app.route('/wordle/reset', methods=['POST'])
 def wordle_reset():
     """Reset the Wordle game."""
-    session.pop('wordle_controller', None)
+    session.pop('wordle_secret', None)
+    session.pop('wordle_guesses', None)
     session['wordle_active'] = False
     session.modified = True
     return jsonify({'status': 'reset'})
