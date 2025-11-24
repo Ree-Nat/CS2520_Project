@@ -41,7 +41,7 @@ def wordle_start():
     session['wordle_guesses'] = []
     session['wordle_active'] = True
     session.modified = True
-    return jsonify({'status': 'started', 'secret': controller.getSecretWord()})
+    return jsonify({'status': 'started'})
 
 
 @app.route('/wordle/guess', methods=['POST'])
