@@ -121,7 +121,7 @@ def wordle_reset():
 @app.route('/spelling-bee')
 def spelling_bee():
     """Spelling Bee game (to be implemented)."""
-    return render_template('coming_soon.html', game='Spelling Bee')
+    return render_template('spellingbee.html', game='Spelling Bee')
 
 
 @app.route('/tictactoe')
