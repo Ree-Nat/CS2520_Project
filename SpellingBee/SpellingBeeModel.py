@@ -26,17 +26,17 @@ class SpellingBeeModel:
         maxInput = 7
 
         chosenVowelCount = random.randint(1,3)
-        chosenConsonantCount = maxInput - chosenVowelCount
         newUsableLetters = ""
 
         #chooses random index in vowels and consonant string
-        for x in range(chosenVowelCount):
-            randomIndex = random.randint(len(vowels)-1)
-            newUsableLetters += vowels[randomIndex]
-        for x in range(chosenConsonantCount):
-            randomIndex = random.randint(len(vowels)-1)
-            newUsableLetters += consonants[randomIndex]
-
+        while(len(newUsableLetters) != chosenVowelCount): 
+            randomIndex = random.randint(0, len(vowels)-1)
+            if(vowels[randomIndex] not in newUsableLetters):
+                newUsableLetters += vowels[randomIndex]
+        while(len(newUsableLetters) != maxInput):
+            randomIndex = random.randint(0, len(consonants)-1)
+            if(consonants[randomIndex] not in newUsableLetters):
+                newUsableLetters += consonants[randomIndex]
         self.__usableLetters = newUsableLetters
         return newUsableLetters
     
