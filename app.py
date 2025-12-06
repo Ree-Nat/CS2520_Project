@@ -9,8 +9,11 @@ import os
 
 # Add project root to path for imports
 sys.path.insert(0, os.path.dirname(__file__))
+sys.path.append(os.path.abspath('WordRepository'))
+sys.path.append(os.path.abspath('SpellingBee'))
 
 from wordle.WordleController import WordleController
+from SpellingBee.SpellingBeeController import SpellingBeeController
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
@@ -120,8 +123,75 @@ def wordle_reset():
 
 @app.route('/spelling-bee')
 def spelling_bee():
-    """Spelling Bee game (to be implemented)."""
-    return render_template('coming_soon.html', game='Spelling Bee')
+    """Spelling Bee game."""
+    return render_template('spellingbee.html')
+
+@app.route('/spelling_bee/start', methods=['POST'])
+def spelling_bee_start():
+    """Start a new Spelling Bee game."""
+    controller = SpellingBeeController()
+    controller.refreshGame()
+
+    # Store game state in session
+    session['spelling_bee_letters'] = controller.getUsableLetters()
+    session['spelling_bee_answers'] = []
+    session['spelling_bee_points'] = 0
+    session.modified = True
+
+    return jsonify({
+        'letters': session['spelling_bee_letters'],
+        'points': 0
+    })
+
+@app.route('/spelling_bee/guess', methods=['POST'])
+def spelling_bee_guess():
+    """Process a Spelling Bee guess."""
+    data = request.get_json()
+    guess = data.get('guess', '').lower()
+
+    if not guess:
+        return jsonify({'error': 'No word provided'}), 400
+
+    # Check if game is active
+    if 'spelling_bee_letters' not in session:
+        return jsonify({'error': 'No active game. Start a new game first.'}), 400
+
+    # Create controller with current game state
+    controller = SpellingBeeController()
+    controller._SpellingBeeController__wordleModel._SpellingBeeModel__usableLetters = session['spelling_bee_letters']
+
+    # Process the guess
+    if controller.processInput(guess):
+        session['spelling_bee_answers'].append(guess)
+        session['spelling_bee_points'] = session.get('spelling_bee_points', 0) + 1
+        session.modified = True
+
+        return jsonify({
+            'valid': True,
+            'word': guess,
+            'points': session['spelling_bee_points'],
+            'answers': session['spelling_bee_answers']
+        })
+    else:
+        return jsonify({
+            'valid': False,
+            'error': 'Invalid word or already used'
+        })
+
+@app.route('/spelling_bee/reset', methods=['POST'])
+def spelling_bee_reset():
+    """Reset the Spelling Bee game."""
+    session.pop('spelling_bee_letters', None)
+    session.pop('spelling_bee_answers', None)
+    session.pop('spelling_bee_points', None)
+    session.modified = True
+    return jsonify({'status': 'reset'})
+
+
+
+
+
+# ================================================================================
 
 
 @app.route('/tictactoe')

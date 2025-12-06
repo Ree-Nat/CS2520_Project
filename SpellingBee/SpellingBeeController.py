@@ -1,10 +1,8 @@
-import SpellingBeeModel
-
+from SpellingBee.SpellingBeeModel import SpellingBeeModel
+ 
 class SpellingBeeController:
     def __init__(self):
-        self.__buffer = ""
-        self.__wordleModel = SpellingBeeModel.SpellingBeeModel()
-        self.__guessState = False
+        self.__wordleModel = SpellingBeeModel()
 
 
 
@@ -12,50 +10,30 @@ class SpellingBeeController:
     def refreshGame(self):
         self.__wordleModel.clearAnswerList()
         self.__wordleModel.resetPoints()
-        self.__wordleModel.generateValidLetters()
-        self.resetBuffer()
+        self.__wordleModel.generateUsableLetters()
 
-    #copied from WordleController, Process user input, passes it on to the function processGuess when finished
-    def onKeyPress(self, key:str):
-        if not isinstance(key, str):
-            raise TypeError("Key must be a string")
-        if len(self.__buffer)<=7:
-            if (key == "ENTER" and len(self.__buffer)<=7): #valid guess entered
-                self.onGuess(self.__buffer)
-                self.__guessState = self.processBuffer(self.__buffer)
-                self.resetBuffer()
-            elif key=="BACKSPACE" and len(self.__buffer)>0: #backspace pressed - decrement guess buffer
-                self.__buffer=self.__buffer[:-1]
-            elif len(key)==1 and key.isalpha() and len(self.__buffer)<=7: #key pressed - add to guess buffer
-                self.__buffer=self.__buffer+key.lower()
+    def getInvalidLetters(self):
+        return self.__wordleModel.getInvalidLetters()
+
+    def getUsableLetters(self):
+        return self.__wordleModel.getUsableLetters()
     
-
-    def processBuffer(self,buffer):
-        if not self.__wordleModel.hasValidLetters():
+    def processInput(self, userInput):
+        # AnNguyen fixed missing userInput argument 12/5
+        if not self.__wordleModel.hasValidLetters(userInput):
             return False
-        elif not self.__wordleModel.containsWord(buffer):
+        elif not self.__wordleModel.containsWord(userInput):
             return False
         else:
-            self.__wordleModel.addValidAnswer(buffer)
+            self.__wordleModel.addValidAnswer(userInput)
             self.__wordleModel.addPoint()
             return True
 
     #gets the list of words that user input
     def getUserAnswers(self):
-        return self.getUserAnswers()
-
-    def setBuffer(self, str):
-        self.__buffer = str
-
-    def getBuffer(self):
-        return self.__buffer
+        # AnNguyen fixed infinite recursion 12/5
+        return self.__wordleModel.getValidAnswers()
 
     def getGamePoints(self):
         return self.__wordleModel.getPoints()
 
-    def resetBuffer(self):
-        self.__buffer = ""
-    
-    def resetGuessState(self):
-        self.__guessState = False
-    

@@ -1,35 +1,38 @@
-import WordRepository.DictionaryReader as reader
+from WordRepository.DictionaryReader import WordDictionary
 import random
 
 class SpellingBeeModel:
 
     def __init__(self):
-        self.__points = 0 
+        self.__points = 0
         self.__validAnswers = []
         self.__usableLetters = self.generateUsableLetters()
-        WordListGenerator = reader.WordDictionary("WordRepository\words_dictionary.json")
-        self.__wordList = WordListGenerator.getWordsOfLength(7)
+        self.__wordList = WordDictionary("WordRepository/words_dictionary.json")
 
     #checks to see if userInput contains the 7 selected words
 
     #creates a random list of 7 characters that contains letters that are able to be used in spelling bee
+
+    def getUsableLetters(self):
+        return self.__usableLetters
+
     def generateUsableLetters(self):
         vowels = "aeiou"
         consonants = "bcdfghjklmnpqrstvwxyz"
         maxInput = 7
 
         chosenVowelCount = random.randint(1,3)
-        chosenConsonantCount = maxInput - chosenVowelCount
         newUsableLetters = ""
 
         #chooses random index in vowels and consonant string
-        for x in range(chosenVowelCount):
-            randomIndex = random.randint(len(vowels)-1)
-            newUsableLetters += vowels[randomIndex]
-        for x in range(chosenConsonantCount):
-            randomIndex = random.randint(len(vowels)-1)
-            newUsableLetters += consonants[randomIndex]
-
+        while(len(newUsableLetters) != chosenVowelCount): 
+            randomIndex = random.randint(0, len(vowels)-1)
+            if(vowels[randomIndex] not in newUsableLetters):
+                newUsableLetters += vowels[randomIndex]
+        while(len(newUsableLetters) != maxInput):
+            randomIndex = random.randint(0, len(consonants)-1)
+            if(consonants[randomIndex] not in newUsableLetters):
+                newUsableLetters += consonants[randomIndex]
         self.__usableLetters = newUsableLetters
         return newUsableLetters
     
@@ -47,15 +50,13 @@ class SpellingBeeModel:
         invalidLetterList = []
         for letter in bufferList:
             if letter not in self.__usableLetters:
-                invalidLetterList.append[letter]
+                # AnNguyen fixed append syntax 12/5
+                invalidLetterList.append(letter)
         return invalidLetterList
         
     #If word found in list of words length 7, return true
     def containsWord(self, userInput):
-        if userInput in self.__wordList:
-            return True
-        else:
-            return False
+        return self.__wordList.contains(userInput)
 
     def addPoint(self):
         self.__points += 1
