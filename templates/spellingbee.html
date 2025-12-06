@@ -1,150 +1,229 @@
 {% extends "base.html" %}
 
-{% block title %}Wordle - NYT Games Clone{% endblock %}
+{% block title %}Spelling Bee - NYT Games Clone{% endblock %}
 
 {% block extra_css %}
 <style>
     .spellingbee-container {
-        max-width: 500px;
+        max-width: 800px;
         margin: 1rem auto;
         padding: 0 1rem;
         text-align: center;
         display: flex;
-        flex-direction: row;
-        min-height: calc(50vh - 80px);
-        justify-content: space-between;
-    }
-
-    .WordList
-    {
-        width: 600px;
-        height: 300px;
-        border: 2px solid #d3d6da;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1rem;
-        font-weight: bold;
-        text-transform: uppercase;
-        background-color: white;
-        margin-left: 50px; 
-        overflow: auto;
-        
-    }
-
-    .UserInput
-    {
-        width: 80px;
+        flex-direction: column;
+        min-height: calc(100vh - 80px);
     }
 
     .game-header {
-        margin-bottom: 0.25rem;
-        margin-right: 50px;
+        margin-bottom: 0.5rem;
     }
 
     .game-header h1 {
-        /*margin: 0.5rem 0;*/
+        margin: 0.5rem 0;
         font-size: 1.8rem;
-        margin-left: 10;
     }
 
     .game-header p {
         margin: 0.25rem 0;
+        color: #666;
     }
 
     .game-stats {
         display: flex;
         justify-content: center;
+        gap: 3rem;
+        margin-bottom: 1rem;
+        font-size: 1.1rem;
+    }
+
+    .content-wrapper {
+        display: flex;
         gap: 2rem;
-        margin-bottom: 0.5rem;
+        justify-content: center;
+        align-items: flex-start;
+        flex-wrap: wrap;
     }
 
-    /* Grid Styles */
-    .grid {
-        display: grid;
-        grid-template-rows: repeat(6, 1fr);
-        gap: 4px;
-        margin: 0.5rem auto;
-        width: fit-content;
+    /* Hexagon Container */
+    .hexagon-grid {
+        position: relative;
+        width: 300px;
+        height: 300px;
+        margin: 0 auto;
     }
 
-    .grid-row {
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: 5px;
-    }
-
-    .grid-cell {
-        width: 52px;
-        height: 52px;
-        border: 2px solid #d3d6da;
+    /* Hexagon Styles */
+    .hexagon {
+        width: 80px;
+        height: 92px;
+        position: absolute;
+        background-color: #e8f5c8;
+        clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.75rem;
+        font-size: 2rem;
         font-weight: bold;
         text-transform: uppercase;
-        background-color: white;
-    }
-
-    .grid-cell.filled {
-        border-color: #878a8c;
-    }
-
-    /* Keyboard Styles */
-    .keyboard {
-        margin: 0.5rem auto 1rem;
-        max-width: 500px;
-    }
-
-    .keyboard-row {
-        display: flex;
-        justify-content: center;
-        gap: 4px;
-        margin-bottom: 4px;
-    }
-
-    .key {
-        padding: 0.75rem 0.5rem;
-        min-width: 38px;
-        background-color: #e8f5c8;
-        border: 1px solid rgba(138, 186, 24, 0.1);
-        border-radius: 6px;
-        font-weight: 600;
-        font-size: 0.85rem;
         cursor: pointer;
-        text-transform: uppercase;
         transition: all 0.2s ease;
+        user-select: none;
     }
 
-
-    .key:hover {
+    .hexagon:hover {
         background-color: #c8e68f;
-        border-color: #a8d030;
-        transform: translateY(-1px);
+        transform: scale(1.05);
     }
 
-    .key.wide {
-        min-width: 55px;
-        font-size: 0.7rem;
-    }
-
-    /* Game Message */
-    .game-message {
-        margin: 0.5rem 0;
-        padding: 0.75rem;
-        border-radius: 4px;
-        font-weight: bold;
-    }
-
-    .game-message.win {
+    .hexagon.center {
         background: linear-gradient(135deg, #8aba18, #a8d030);
         color: white;
     }
 
-    .game-message.lose {
+    .hexagon.center:hover {
+        background: linear-gradient(135deg, #6a9114, #8aba18);
+    }
+
+    /* Hexagon Positions (honeycomb layout) */
+    .hex-0 { top: 104px; left: 110px; } /* Center */
+    .hex-1 { top: 10px; left: 110px; }  /* Top */
+    .hex-2 { top: 57px; left: 30px; }   /* Top-left */
+    .hex-3 { top: 151px; left: 30px; }  /* Bottom-left */
+    .hex-4 { top: 198px; left: 110px; } /* Bottom */
+    .hex-5 { top: 151px; left: 190px; } /* Bottom-right */
+    .hex-6 { top: 57px; left: 190px; }  /* Top-right */
+
+    /* Input Section */
+    .input-section {
+        margin: 1.5rem 0;
+    }
+
+    .user-input {
+        padding: 0.75rem;
+        font-size: 1.25rem;
+        border: 2px solid #d3d6da;
+        border-radius: 8px;
+        width: 250px;
+        text-align: center;
+        text-transform: uppercase;
+        font-weight: 600;
+    }
+
+    .user-input::placeholder {
+        color: #999;
+        opacity: 0.6;
+    }
+
+    .user-input:focus {
+        outline: none;
+        border-color: #8aba18;
+    }
+
+    .input-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 1rem;
+    }
+
+    .btn-game {
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+        font-weight: 600;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background-color: #e8f5c8;
+        color: #1a1a1a;
+    }
+
+    .btn-game:hover {
         background-color: #c8e68f;
-        color: #6a9114;
+        transform: translateY(-1px);
+    }
+
+    .btn-game.primary {
+        background: linear-gradient(135deg, #8aba18, #a8d030);
+        color: white;
+    }
+
+    .btn-game.primary:hover {
+        background: linear-gradient(135deg, #6a9114, #8aba18);
+    }
+
+    /* Word List */
+    .word-list-container {
+        flex: 1;
+        min-width: 300px;
+        max-width: 400px;
+    }
+
+    .word-list-header {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #333;
+    }
+
+    .word-list {
+        border: 1px solid rgba(138, 186, 24, 0.15);
+        border-radius: 12px;
+        padding: 1rem;
+        min-height: 300px;
+        max-height: 400px;
+        overflow-y: auto;
+        background: rgba(255, 255, 255, 0.4);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 32px rgba(138, 186, 24, 0.1);
+        text-align: left;
+    }
+
+    .word-list ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .word-list li {
+        padding: 0.5rem;
+        margin: 0.25rem 0;
+        background-color: white;
+        border-radius: 4px;
+        border-left: 3px solid #8aba18;
+        animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    .word-list-empty {
+        color: #999;
+        font-style: italic;
+        text-align: center;
+        padding: 2rem;
+    }
+
+    /* Game Message */
+    .game-message {
+        margin: 1rem 0;
+        padding: 0.75rem;
+        border-radius: 6px;
+        font-weight: 600;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .game-message.success {
+        background: linear-gradient(135deg, #8aba18, #a8d030);
+        color: white;
     }
 
     .game-message.error {
@@ -159,7 +238,7 @@
     #reset-btn {
         padding: 0.8rem 2rem;
         font-size: 1rem;
-        margin: 0.25rem auto 1rem;
+        margin: 1rem auto;
         display: block;
         max-width: 200px;
     }
@@ -167,52 +246,63 @@
 {% endblock %}
 
 {% block content %}
-  <div class="game-stats">
-        <div>Words Spelt: <span id="words_spelled">0</span></div>
-    </div>
-
 <div class="spellingbee-container">
     <div class="game-header">
         <h1>Spelling Bee</h1>
-        <p>Spell as many words as you can</p>
+        <p>Create words using the letters in the honeycomb</p>
     </div>
+
+    <div class="game-stats">
+        <div>Words Found: <span id="words-found">0</span></div>
+        <div>Points: <span id="points">0</span></div>
+    </div>
+
     <div id="game-message" class="game-message hidden"></div>
-    <!-- On-screen Keyboard -->
-    <div class="keyboard">
-        <div class="keyboard-row">
-            <button class="key" data-key="q">?</button>
-            <button class="key" data-key="w">?</button>
-            <button class="key" data-key="e">?</button>
-        </div>
-        <div class="keyboard-row">
-            <button class="key" data-key="a">?</button>
-            <button class="key" data-key="s" style="background-color: yellow;">?</button> <!-- Character that is required in word-->
-            <button class="key" data-key="d">?</button>
-        </div>
-        <div class="keyboard-row">
-            <button class="key" data-key="z">?</button>
-            <button class="key" data-key="x">?</button>
-            <button class="key" data-key="c">?</button>
+
+    <div class="content-wrapper">
+        <!-- Hexagon Grid -->
+        <div>
+            <div class="hexagon-grid" id="hexagon-grid">
+                <div class="hexagon center hex-0" data-index="0"></div>
+                <div class="hexagon hex-1" data-index="1"></div>
+                <div class="hexagon hex-2" data-index="2"></div>
+                <div class="hexagon hex-3" data-index="3"></div>
+                <div class="hexagon hex-4" data-index="4"></div>
+                <div class="hexagon hex-5" data-index="5"></div>
+                <div class="hexagon hex-6" data-index="6"></div>
+            </div>
+
+            <!-- Input Section -->
+            <div class="input-section">
+                <input type="text" id="user-input" class="user-input" placeholder="Type your word" autocomplete="off">
+                <div class="input-buttons">
+                    <button class="btn-game" onclick="clearInput()">Clear</button>
+                    <button class="btn-game" onclick="shuffleLetters()">Shuffle</button>
+                    <button class="btn-game primary" onclick="submitGuess()">Submit</button>
+                </div>
+            </div>
         </div>
 
-        <input type="text" id="userInput" name="userInput" class="UserInput" autofocus>
-        <button class="key wide" data-key="enter">Enter</button>
-
-
+        <!-- Word List -->
+        <div class="word-list-container">
+            <div class="word-list-header">Words Found:</div>
+            <div class="word-list">
+                <ul id="word-list">
+                    <li class="word-list-empty">Start finding words!</li>
+                </ul>
+            </div>
+        </div>
     </div>
-   <!--   -->
 
-
-   <!--Box where words are stored-->
-        <div class="WordList">
-            <li>this is probably an inneficient way to store words but it works</li>
-        </div>
+    <button id="reset-btn" class="btn btn-primary" onclick="resetGame()">New Game</button>
 </div>
-<button id="reset-btn" class="btn btn-primary" onclick="resetGame()">New Game</button>
 {% endblock %}
 
 {% block extra_js %}
 <script>
+    let letters = [];
+    let centerLetter = '';
+    let foundWords = [];
 
     // Initialize game on page load
     document.addEventListener('DOMContentLoaded', () => {
@@ -220,21 +310,172 @@
         setupEventListeners();
     });
 
-    function startGame()
-    {
-
-        fetch("/spelling_bee/start", {
-            method: 'POST'
+    function startGame() {
+        fetch('/spelling_bee/start', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
         })
-        
-            .then(response => response.json())
-            .then(data => console.log(data))
-            .catch(error => console.error)
-
-
+        .then(response => response.json())
+        .then(data => {
+            letters = data.letters.split('');
+            centerLetter = letters[0]; // First letter is required
+            foundWords = [];
+            displayLetters();
+            updateStats();
+            console.log('Game started with letters:', letters);
+        })
+        .catch(error => {
+            showMessage('Error starting game', 'error');
+            console.error('Error:', error);
+        });
     }
 
+    function displayLetters() {
+        const hexagons = document.querySelectorAll('.hexagon');
+        hexagons.forEach((hex, index) => {
+            hex.textContent = letters[index];
+        });
+    }
 
-   
+    function setupEventListeners() {
+        const input = document.getElementById('user-input');
+
+        // Hexagon clicks
+        document.querySelectorAll('.hexagon').forEach(hex => {
+            hex.addEventListener('click', () => {
+                const letter = hex.textContent;
+                input.value += letter;
+                input.focus();
+            });
+        });
+
+        // Keyboard events
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                submitGuess();
+            }
+        });
+    }
+
+    function submitGuess() {
+        const input = document.getElementById('user-input');
+        const guess = input.value.toLowerCase().trim();
+
+        if (!guess) {
+            showMessage('Please enter a word', 'error');
+            return;
+        }
+
+        if (guess.length < 4) {
+            showMessage('Word must be at least 4 letters', 'error');
+            return;
+        }
+
+        if (!guess.includes(centerLetter.toLowerCase())) {
+            showMessage(`Word must contain ${centerLetter}`, 'error');
+            return;
+        }
+
+        if (foundWords.includes(guess)) {
+            showMessage('Already found this word!', 'error');
+            return;
+        }
+
+        fetch('/spelling_bee/guess', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ guess: guess })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.valid) {
+                foundWords.push(guess);
+                addWordToList(guess);
+                updateStats(data.points);
+                showMessage('Great word!', 'success');
+                input.value = '';
+            } else {
+                showMessage(data.error || 'Invalid word', 'error');
+            }
+        })
+        .catch(error => {
+            showMessage('Error submitting guess', 'error');
+            console.error('Error:', error);
+        });
+    }
+
+    function addWordToList(word) {
+        const wordList = document.getElementById('word-list');
+        const emptyMessage = wordList.querySelector('.word-list-empty');
+        if (emptyMessage) {
+            emptyMessage.remove();
+        }
+
+        const li = document.createElement('li');
+        li.textContent = word.toUpperCase();
+        wordList.appendChild(li);
+    }
+
+    function updateStats(points) {
+        document.getElementById('words-found').textContent = foundWords.length;
+        if (points !== undefined) {
+            document.getElementById('points').textContent = points;
+        }
+    }
+
+    function clearInput() {
+        document.getElementById('user-input').value = '';
+        document.getElementById('user-input').focus();
+    }
+
+    function shuffleLetters() {
+        // Keep center letter (index 0), shuffle rest
+        const rest = letters.slice(1);
+        for (let i = rest.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [rest[i], rest[j]] = [rest[j], rest[i]];
+        }
+        letters = [letters[0], ...rest];
+        displayLetters();
+    }
+
+    function resetGame() {
+        document.activeElement.blur(); // Remove focus from button
+
+        fetch('/spelling_bee/reset', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        })
+        .then(response => response.json())
+        .then(() => {
+            // Reset UI
+            foundWords = [];
+            document.getElementById('user-input').value = '';
+            document.getElementById('word-list').innerHTML = '<li class="word-list-empty">Start finding words!</li>';
+            document.getElementById('words-found').textContent = '0';
+            document.getElementById('points').textContent = '0';
+            document.getElementById('game-message').classList.add('hidden');
+
+            // Start new game
+            return startGame();
+        })
+        .catch(error => {
+            showMessage('Error resetting game', 'error');
+            console.error('Error:', error);
+        });
+    }
+
+    function showMessage(text, type) {
+        const messageEl = document.getElementById('game-message');
+        messageEl.textContent = text;
+        messageEl.className = `game-message ${type}`;
+        messageEl.classList.remove('hidden');
+
+        // Auto-hide after 3 seconds
+        setTimeout(() => {
+            messageEl.classList.add('hidden');
+        }, 3000);
+    }
 </script>
 {% endblock %}

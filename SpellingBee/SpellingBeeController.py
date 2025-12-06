@@ -1,4 +1,4 @@
-from SpellingBeeModel import SpellingBeeModel
+from SpellingBee.SpellingBeeModel import SpellingBeeModel
  
 class SpellingBeeController:
     def __init__(self):
@@ -19,7 +19,8 @@ class SpellingBeeController:
         return self.__wordleModel.getUsableLetters()
     
     def processInput(self, userInput):
-        if not self.__wordleModel.hasValidLetters():
+        # AnNguyen fixed missing userInput argument 12/5
+        if not self.__wordleModel.hasValidLetters(userInput):
             return False
         elif not self.__wordleModel.containsWord(userInput):
             return False
@@ -30,7 +31,8 @@ class SpellingBeeController:
 
     #gets the list of words that user input
     def getUserAnswers(self):
-        return self.getUserAnswers()
+        # AnNguyen fixed infinite recursion 12/5
+        return self.__wordleModel.getValidAnswers()
 
     def getGamePoints(self):
         return self.__wordleModel.getPoints()

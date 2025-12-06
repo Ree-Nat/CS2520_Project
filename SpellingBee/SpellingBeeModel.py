@@ -1,17 +1,13 @@
-from WordRepository import DictionaryReader
+from WordRepository.DictionaryReader import WordDictionary
 import random
 
 class SpellingBeeModel:
 
     def __init__(self):
-
-
-        
-
-        self.__points = 0 
+        self.__points = 0
         self.__validAnswers = []
         self.__usableLetters = self.generateUsableLetters()
-        self.__wordList = DictionaryReader.WordDictionary("WordRepository\words_dictionary.json")
+        self.__wordList = WordDictionary("WordRepository/words_dictionary.json")
 
     #checks to see if userInput contains the 7 selected words
 
@@ -54,7 +50,8 @@ class SpellingBeeModel:
         invalidLetterList = []
         for letter in bufferList:
             if letter not in self.__usableLetters:
-                invalidLetterList.append[letter]
+                # AnNguyen fixed append syntax 12/5
+                invalidLetterList.append(letter)
         return invalidLetterList
         
     #If word found in list of words length 7, return true
