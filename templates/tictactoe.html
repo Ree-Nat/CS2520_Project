@@ -4,42 +4,74 @@
 
 {% block extra_css %}
 <style>
+    /* AnNguyen fixed layout to prevent scrolling 12/6 */
     .tictactoe-container {
-        max-width: 500px;
-        margin: 1rem auto;
-        padding: 0 1rem;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 1rem;
         text-align: center;
         display: flex;
         flex-direction: column;
-        min-height: calc(100vh - 80px);
-        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    /* Game header - AnNguyen improved styling 12/6 */
+    .game-header {
+        margin-bottom: 0;
     }
 
     .game-header h1 {
-        margin: 0.5rem 0;
-        font-size: 1.8rem;
+        margin: 0.25rem 0;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        letter-spacing: -0.5px;
     }
 
-    /* Message bar */
+    .game-header p {
+        color: #787c7e;
+        font-size: 0.95rem;
+        margin: 0.25rem 0 0 0;
+    }
+
+    /* Message bar - AnNguyen added glassmorphism 12/6 */
     .game-message {
-        margin: 0.5rem 0;
-        padding: 0.75rem;
-        border-radius: 4px;
-        font-weight: bold;
+        margin: 0 auto;
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        max-width: 400px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+        animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     .game-message.win {
-        background: linear-gradient(135deg, #8aba18, #a8d030);
+        background: linear-gradient(135deg, rgba(138, 186, 24, 0.9), rgba(168, 208, 48, 0.9));
         color: white;
     }
 
     .game-message.tie {
-        background-color: #c8e68f;
+        background: rgba(200, 230, 143, 0.9);
         color: #6a9114;
     }
 
     .game-message.error {
-        background-color: #ef476f;
+        background: rgba(239, 71, 111, 0.9);
         color: white;
     }
 
@@ -47,47 +79,118 @@
         display: none;
     }
 
+    /* Game grid - AnNguyen added glassmorphism and improved styling 12/6 */
     .ttt-grid {
         display: grid;
-        grid-template-columns: repeat(3, 100px);
-        grid-template-rows: repeat(3, 100px);
-        gap: 6px;
-        margin: 1rem auto;
+        grid-template-columns: repeat(3, 110px);
+        grid-template-rows: repeat(3, 110px);
+        gap: 10px;
+        margin: 0 auto;
+        padding: 1.25rem;
+        background: rgba(255, 255, 255, 0.4);
+        backdrop-filter: blur(10px);
+        border-radius: 16px;
+        border: 1px solid rgba(138, 186, 24, 0.15);
+        box-shadow: 0 8px 32px rgba(138, 186, 24, 0.1);
+        width: fit-content;
     }
 
     .ttt-cell {
-        width: 100px;
-        height: 100px;
-        border: 2px solid #d3d6da;
-        background-color: white;
-        font-size: 2.5rem;
+        width: 110px;
+        height: 110px;
+        border: 2px solid rgba(138, 186, 24, 0.2);
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(5px);
+        border-radius: 12px;
+        font-size: 2.8rem;
         font-weight: bold;
         display: flex;
         justify-content: center;
         align-items: center;
         cursor: pointer;
-        transition: background-color 0.2s ease, transform 0.1s ease;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        position: relative;
+        overflow: hidden;
     }
 
     .ttt-cell:hover {
-        background-color: #f1f3f4;
-        transform: translateY(-2px);
+        background: rgba(255, 255, 255, 0.8);
+        transform: translateY(-4px) scale(1.05);
+        box-shadow: 0 8px 24px rgba(138, 186, 24, 0.15);
+        border-color: rgba(138, 186, 24, 0.4);
+    }
+
+    .ttt-cell:active {
+        transform: translateY(-2px) scale(1.02);
+        transition: all 0.1s ease;
+    }
+
+    /* Ripple effect */
+    .ttt-cell::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(138, 186, 24, 0.3);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+    }
+
+    .ttt-cell:active::after {
+        width: 200px;
+        height: 200px;
     }
 
     .ttt-cell.X {
-        color: #6ca965;
+        color: #8aba18;
+        text-shadow: 0 2px 4px rgba(138, 186, 24, 0.2);
     }
 
     .ttt-cell.O {
         color: #ef476f;
+        text-shadow: 0 2px 4px rgba(239, 71, 111, 0.2);
     }
 
+    /* Pop-in animation for placed marks */
+    @keyframes popIn {
+        0% {
+            transform: scale(0);
+            opacity: 0;
+        }
+        50% {
+            transform: scale(1.2);
+        }
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    .ttt-cell.placed {
+        animation: popIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Reset button - AnNguyen improved styling 12/6 */
     #reset-btn {
         padding: 0.8rem 2rem;
         font-size: 1rem;
-        margin: 0.25rem auto 1rem;
+        margin: 0 auto;
         display: block;
         max-width: 200px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    #reset-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(138, 186, 24, 0.25);
+    }
+
+    #reset-btn:active {
+        transform: translateY(0);
     }
 </style>
 {% endblock %}
@@ -153,7 +256,10 @@
             row.forEach((cell, c) => {
                 const tile = document.createElement("div");
                 tile.classList.add("ttt-cell");
-                if (cell === "X" || cell === "O") tile.classList.add(cell);
+                // AnNguyen added animation class for placed marks 12/6
+                if (cell === "X" || cell === "O") {
+                    tile.classList.add(cell, "placed");
+                }
                 tile.textContent = cell;
                 tile.onclick = () => makeMove(r, c);
                 boardDiv.appendChild(tile);

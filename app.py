@@ -15,7 +15,7 @@ sys.path.append(os.path.abspath('TicTacToe'))
 
 from wordle.WordleController import WordleController
 from SpellingBee.SpellingBeeController import SpellingBeeController
-from TicTacToe import TicTacToeController
+from TicTacToe.TicTacToeController import TicTacToeController
 
 
 app = Flask(__name__)
@@ -197,20 +197,23 @@ def spelling_bee_reset():
 
 @app.route('/tictactoe')
 def tictactoe():
+    """Render Tic-Tac-Toe game page."""
     return render_template('tictactoe.html')
 
 
 @app.route('/tictactoe/start', methods=['POST'])
 def tictactoe_start():
+    """Start a new Tic-Tac-Toe game."""
     controller = TicTacToeController()
-    session['tictactoe'] = controller.model.board
-    session['current_player'] = 'X'
+    session['tictactoe_board'] = controller.model.board
+    session['tictactoe_player'] = 'X'
     session.modified = True
-    return jsonify({'board': session['tictactoe'], 'player': 'X'})
+    return jsonify({'board': session['tictactoe_board'], 'player': 'X'})
 
 
 @app.route('/tictactoe/move', methods=['POST'])
 def tictactoe_move():
+    """Process a Tic-Tac-Toe move."""
     data = request.get_json()
     row = data.get("row")
     col = data.get("col")
@@ -218,20 +221,33 @@ def tictactoe_move():
     if row is None or col is None:
         return jsonify({'error': 'Missing row/col'}), 400
 
+    # Check if game is active
+    if 'tictactoe_board' not in session or 'tictactoe_player' not in session:
+        return jsonify({'error': 'No active game. Start a new game first.'}), 400
+
     controller = TicTacToeController()
-    controller.model.board = session['tictactoe']
-    controller.model.current_player = session['current_player']
+    controller.model.board = session['tictactoe_board']
+    controller.model.current_player = session['tictactoe_player']
 
     result = controller.play_move(row, col)
 
     if "error" in result:
         return jsonify(result), 400
 
-    session['tictactoe'] = result['board']
-    session['current_player'] = controller.model.current_player
+    session['tictactoe_board'] = result['board']
+    session['tictactoe_player'] = controller.model.current_player
     session.modified = True
 
     return jsonify(result)
+
+
+@app.route('/tictactoe/reset', methods=['POST'])
+def tictactoe_reset():
+    """Reset the Tic-Tac-Toe game."""
+    session.pop('tictactoe_board', None)
+    session.pop('tictactoe_player', None)
+    session.modified = True
+    return jsonify({'status': 'reset'})
 
 
 

@@ -1,19 +1,18 @@
-from TicTacToe.TicTacToeController import TicTacToeModel
+from TicTacToe.TicTacToeModel import TicTacToeModel
 
 class TicTacToeController:
-    
-    #Handles game state and interaction for Tic-Tac-Toe.
+    """Handles game state and interaction for Tic-Tac-Toe."""
     
     def __init__(self):
         self.model = TicTacToeModel()
 
     def start_game(self):
-        #Resets the board.
+        """Resets the board."""
         self.model = TicTacToeModel()
         return self.model.board
 
     def play_move(self, row, col):
-        #Processes a move and returns updated game state.
+        """Processes a move and returns updated game state."""
         if not self.model.make_move(row, col):
             return {"error": "Invalid move"}
 
