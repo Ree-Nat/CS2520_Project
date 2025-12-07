@@ -12,5 +12,5 @@ python app.py
 
 ## Games
 - **Wordle** - Guess the five-letter word in 6 tries
-- **Spelling Bee** - Coming Soon
-- **Tic-Tac-Toe** - Coming Soon
+- **Spelling Bee** - Create as many words as you can with 7 letters
+- **Tic-Tac-Toe** - Get three-in-a-row against an opponent
