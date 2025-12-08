@@ -200,6 +200,7 @@
     <div class="game-header">
         <h1>Tic Tac Toe</h1>
         <p>Try to get 3 in a row</p>
+        <button class="instructions-btn" onclick="openInstructions()">How to Play</button>
     </div>
 
     <div id="game-message" class="game-message hidden"></div>
@@ -210,6 +211,38 @@
     </div>
 
     <button id="reset-btn" class="btn btn-primary">New Game</button>
+</div>
+
+<!-- Instructions Modal -->
+<div id="instructions-modal" class="instructions-modal">
+    <div class="instructions-modal-content">
+        <div class="instructions-modal-header">
+            <h2>How to Play Tic Tac Toe</h2>
+            <button class="instructions-close-btn" onclick="closeInstructions()">&times;</button>
+        </div>
+        <div class="instructions-content">
+            <h3>Be the first player to get 3 of your marks in a row.</h3>
+            
+            <ul>
+                <li>Player <strong>X</strong> goes first</li>
+                <li>Players take turns clicking on an empty cell</li>
+                <li>Place your mark (X or O) in the cell you click</li>
+                <li>The game alternates between X and O automatically</li>
+                <li>Click <strong>New Game</strong> to start over</li>
+            </ul>
+            
+            <h3>Winning</h3>
+            <p>You win by getting 3 of your marks in a row:</p>
+            <ul>
+                <li><strong>Horizontally</strong> - across any row</li>
+                <li><strong>Vertically</strong> - down any column</li>
+                <li><strong>Diagonally</strong> - from corner to corner</li>
+            </ul>
+            
+            <h3>Tie Game</h3>
+            <p>If all 9 cells are filled and no player has 3 in a row, the game ends in a tie.</p>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
@@ -300,5 +333,28 @@
             currentPlayer = data.next_player;
         });
     }
+
+    // Instructions modal functions
+    function openInstructions() {
+        document.getElementById('instructions-modal').classList.add('active');
+    }
+
+    function closeInstructions() {
+        document.getElementById('instructions-modal').classList.remove('active');
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('instructions-modal').addEventListener('click', (e) => {
+        if (e.target.id === 'instructions-modal') {
+            closeInstructions();
+        }
+    });
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeInstructions();
+        }
+    });
 </script>
 {% endblock %}
