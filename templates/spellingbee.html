@@ -280,6 +280,7 @@
     <div class="game-header">
         <h1>Spelling Bee</h1>
         <p>Create words using the letters in the honeycomb</p>
+        <button class="instructions-btn" onclick="openInstructions()">How to Play</button>
     </div>
 
     <div class="game-stats">
@@ -325,6 +326,41 @@
     </div>
 
     <button id="reset-btn" class="btn btn-primary" onclick="resetGame()">New Game</button>
+</div>
+
+<!-- Instructions Modal -->
+<div id="instructions-modal" class="instructions-modal">
+    <div class="instructions-modal-content">
+        <div class="instructions-modal-header">
+            <h2>How to Play Spelling Bee</h2>
+            <button class="instructions-close-btn" onclick="closeInstructions()">&times;</button>
+        </div>
+        <div class="instructions-content">
+            <h3>Objective</h3>
+            <p>Create as many words as possible using the letters in the honeycomb. Each word must be at least 4 letters long.</p>
+            
+            <h3>Rules</h3>
+            <ul>
+                <li>Words must contain the <strong>center letter</strong> (the letter in the middle hexagon)</li>
+                <li>Words must be at least <strong>4 letters</strong> long</li>
+                <li>You can use letters <strong>multiple times</strong> in a word</li>
+                <li>Only letters shown in the honeycomb can be used</li>
+                <li>Each word can only be found <strong>once</strong></li>
+            </ul>
+            
+            <h3>How to Play</h3>
+            <ul>
+                <li><strong>Click</strong> on hexagons to add letters to your word, or <strong>type</strong> directly</li>
+                <li>Click <strong>Submit</strong> or press <strong>Enter</strong> to check your word</li>
+                <li>Click <strong>Clear</strong> to erase your current input</li>
+                <li>Click <strong>Shuffle</strong> to rearrange the outer letters</li>
+                <li>Valid words are added to your word list and you earn points</li>
+            </ul>
+            
+            <h3>Scoring</h3>
+            <p>Points are awarded based on word length. Longer words earn more points!</p>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
@@ -507,5 +543,28 @@
             messageEl.classList.add('hidden');
         }, 3000);
     }
+
+    // Instructions modal functions
+    function openInstructions() {
+        document.getElementById('instructions-modal').classList.add('active');
+    }
+
+    function closeInstructions() {
+        document.getElementById('instructions-modal').classList.remove('active');
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('instructions-modal').addEventListener('click', (e) => {
+        if (e.target.id === 'instructions-modal') {
+            closeInstructions();
+        }
+    });
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeInstructions();
+        }
+    });
 </script>
 {% endblock %}

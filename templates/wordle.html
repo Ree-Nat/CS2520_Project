@@ -164,6 +164,7 @@
     <div class="game-header">
         <h1>Wordle</h1>
         <p>Guess the word in 6 tries</p>
+        <button class="instructions-btn" onclick="openInstructions()">How to Play</button>
     </div>
 
     <div class="game-stats">
@@ -258,6 +259,35 @@
     </div>
 
     <button id="reset-btn" class="btn btn-primary" onclick="resetGame()">New Game</button>
+</div>
+
+<!-- Instructions Modal -->
+<div id="instructions-modal" class="instructions-modal">
+    <div class="instructions-modal-content">
+        <div class="instructions-modal-header">
+            <h2>How To Play Wordle</h2>
+            <button class="instructions-close-btn" onclick="closeInstructions()">&times;</button>
+        </div>
+        <div class="instructions-content">
+            <h3>Guess the Wordle in 6 tries.</h3>
+            
+            <ul>
+                <li>Each guess must be a valid 5-letter word</li>
+                <li>After each guess, the colors will show you how close you are</li>
+                <li>Press <strong>Enter</strong> or click the <strong>Enter</strong> button to submit your guess</li>
+                <li>Use <strong>Backspace</strong> or the <strong>⌫</strong> button to delete letters</li>
+            </ul>
+            
+            <h3>Examples</h3>
+            <img src="static/images/correct_spot.png" alt="W is in the word and in the correct spot." style="width: 50%;"/>
+            <p><strong>W</strong> is in the word and in the correct spot.</p>
+            <img src="static/images/in_word_wrong_spot.png" alt="I is in the word but in the wrong spot." style="width: 50%;"/>
+            <p><strong>I</strong> is in the word but in the wrong spot.</p>
+            <img src="static/images/not_in_word.png" alt="U is not in the word in any spot." style="width: 50%;"/>
+            <p><strong>U</strong> is not in the word in any spot.</p>
+
+        </div>
+    </div>
 </div>
 {% endblock %}
 
@@ -452,5 +482,28 @@
             console.error('Error:', error);
         });
     }
+
+    // Instructions modal functions
+    function openInstructions() {
+        document.getElementById('instructions-modal').classList.add('active');
+    }
+
+    function closeInstructions() {
+        document.getElementById('instructions-modal').classList.remove('active');
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('instructions-modal').addEventListener('click', (e) => {
+        if (e.target.id === 'instructions-modal') {
+            closeInstructions();
+        }
+    });
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeInstructions();
+        }
+    });
 </script>
 {% endblock %}
